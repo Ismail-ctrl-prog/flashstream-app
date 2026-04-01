@@ -44,7 +44,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     <AptosWalletAdapterProvider
       autoConnect={false}
       optInWallets={["Petra"]}
-      dappConfig={{ aptosConnect: { dappName: "FlashStream" } }}
+      dappConfig={{ network: "testnet", aptosConnect: { dappName: "FlashStream" } }}
     >
       <WalletContextInner>{children}</WalletContextInner>
     </AptosWalletAdapterProvider>
