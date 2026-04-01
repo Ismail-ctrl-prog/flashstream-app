@@ -2,6 +2,7 @@
 
 import { createContext, useContext, ReactNode } from "react";
 import { useWallet as useAptosWallet, AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
+import { Network } from "@aptos-labs/ts-sdk";
 
 interface WalletContextType {
   address: string | null;
@@ -44,7 +45,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     <AptosWalletAdapterProvider
       autoConnect={false}
       optInWallets={["Petra"]}
-      dappConfig={{ network: "testnet", aptosConnect: { dappName: "FlashStream" } }}
+      dappConfig={{ network: Network.TESTNET, aptosConnect: { dappName: "FlashStream" } }}
     >
       <WalletContextInner>{children}</WalletContextInner>
     </AptosWalletAdapterProvider>
