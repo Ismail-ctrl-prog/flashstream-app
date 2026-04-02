@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { ShelbyNodeClient } from "@shelby-protocol/sdk/node";
 import { Network, Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb",
+    },
+  },
+};
+
 const API_KEY = "aptoslabs_G8yGV938eQu_31wm4T6othxKdmGquFwaDNbagN8XESwdD";
 
 const account = Account.fromPrivateKey({
