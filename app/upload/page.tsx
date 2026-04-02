@@ -61,7 +61,7 @@ export default function UploadPage() {
         "-filter_complex", "[0:v]split=2[v0][v1];[v0]scale=1280:720[v0out];[v1]scale=854:480[v1out]",
         "-map", "[v0out]", "-map", "0:a:0?",
         "-map", "[v1out]", "-map", "0:a:0?",
-        "-c:v", "libx264", "-preset", "ultrafast", "-profile:v", "high",
+        "-c:v", "libx264", "-preset", "fast", "-profile:v", "high",
         "-b:v:0", "3000000", "-b:v:1", "1200000",
         "-c:a", "aac", "-b:a", "128000",
         "-f", "hls",
