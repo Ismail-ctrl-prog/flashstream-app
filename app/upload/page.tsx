@@ -61,7 +61,7 @@ export default function UploadPage() {
         "-filter_complex", "[0:v]split=2[v0][v1];[v0]scale=1280:720[v0out];[v1]scale=854:480[v1out]",
         "-map", "[v0out]", "-map", "0:a:0?",
         "-map", "[v1out]", "-map", "0:a:0?",
-        "-c:v", "libx264", "-preset", "fast", "-profile:v", "high",
+        "-c:v", "libx264", "-preset", "fast", "-profile:v", "baseline", "-pix_fmt", "yuv420p",
         "-b:v:0", "3000000", "-b:v:1", "1200000",
         "-c:a", "aac", "-b:a", "128000",
         "-f", "hls",
@@ -251,7 +251,7 @@ export default function UploadPage() {
             <div>
               <div className="text-5xl mb-4">🎉</div>
               <h2 className="text-3xl font-bold text-[#001f5b] dark:text-white">Video is live!</h2>
-              <p className="text-gray-500 dark:text-gray-400 mt-2">Your video is now streaming from Shelby's decentralized network.</p>
+              <p className="text-gray-500 dark:text-gray.400 mt-2">Your video is now streaming from Shelby's decentralized network.</p>
             </div>
             <div className="bg-[#001f5b]/5 dark:bg-white/5 border border-[#001f5b]/20 dark:border-white/20 rounded-xl p-4 space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Playback URL</p>
