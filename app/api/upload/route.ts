@@ -22,6 +22,8 @@ const client = new ShelbyNodeClient({
   indexer: { apiKey: API_KEY },
 });
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function POST(req: NextRequest) {
   try {
     const { blobName, data } = await req.json();
@@ -32,13 +34,26 @@ export async function POST(req: NextRequest) {
 
     const expiry = Date.now() * 1000 + 86400_000_000 * 7;
 
-    await client.batchUpload({
-      blobs: [{ blobData, blobName }],
-      signer: account,
-      expirationMicros: expiry,
-    });
+    let lastError: any;
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        await client.batchUpload({
+          blobs: [{ blobData, blobName }],
+          signer: account,
+          expirationMicros: expiry,
+        });
+        return NextResponse.json({ success: true });
+      } catch (err: any) {
+        lastError = err;
+        if (err.message?.includes("not been registered")) {
+          await sleep(attempt * 3000);
+          continue;
+        }
+        throw err;
+      }
+    }
 
-    return NextResponse.json({ success: true });
+    throw lastError;
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
