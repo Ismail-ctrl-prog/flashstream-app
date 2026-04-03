@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ShelbyNodeClient } from "@shelby-protocol/sdk/node";
 import { Network } from "@aptos-labs/ts-sdk";
 
@@ -11,14 +11,25 @@ const client = new ShelbyNodeClient({
   indexer: { apiKey: API_KEY },
 });
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const userAddress = searchParams.get("address");
+
+    const where: any = {
+      owner: { _eq: ACCOUNT },
+      blob_name: { _like: "%user-%" },
+      is_deleted: { _eq: "0" },
+    };
+
+    if (userAddress) {
+      const shortAddr = userAddress.slice(2, 10).toLowerCase();
+      where.blob_name._like = `%user-${shortAddr}%`;
+    }
+
     const blobs = await client.coordination.getBlobs({
-      where: {
-        owner: { _eq: ACCOUNT },
-        blob_name: { _like: "%user-%" },
-        is_deleted: { _eq: "0" },
-      },
+      where,
+      limit: 100,
     });
 
     const masterBlobs = blobs.filter(b => b.blobNameSuffix?.endsWith("master.m3u8"));

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useEffect } from "react";
 import { useWallet as useAptosWallet, AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { Network } from "@aptos-labs/ts-sdk";
 
@@ -21,17 +21,30 @@ const WalletContext = createContext<WalletContextType>({
 });
 
 function WalletContextInner({ children }: { children: ReactNode }) {
-  const { connect, disconnect, account, isLoading, signAndSubmitTransaction } = useAptosWallet();
+  const { connect, disconnect, account, isLoading, signAndSubmitTransaction, connected } = useAptosWallet();
+
+  useEffect(() => {
+    if (connected && account?.address) {
+      sessionStorage.setItem("walletAddress", account.address.toString());
+    } else {
+      sessionStorage.removeItem("walletAddress");
+    }
+  }, [connected, account]);
 
   const handleConnect = async () => {
     await connect("Petra");
+  };
+
+  const handleDisconnect = () => {
+    sessionStorage.removeItem("walletAddress");
+    disconnect();
   };
 
   return (
     <WalletContext.Provider value={{
       address: account?.address?.toString() ?? null,
       connect: handleConnect,
-      disconnect,
+      disconnect: handleDisconnect,
       isConnecting: isLoading,
       signAndSubmit: signAndSubmitTransaction,
     }}>
@@ -43,7 +56,7 @@ function WalletContextInner({ children }: { children: ReactNode }) {
 export function WalletProvider({ children }: { children: ReactNode }) {
   return (
     <AptosWalletAdapterProvider
-      autoConnect={false}
+      autoConnect={true}
       optInWallets={["Petra"]}
       dappConfig={{ network: Network.TESTNET, aptosConnect: { dappName: "FlashStream" } }}
     >
