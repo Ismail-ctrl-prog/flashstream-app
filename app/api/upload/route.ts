@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ShelbyNodeClient } from "@shelby-protocol/sdk/node";
 import { Network, Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
 
+export const maxDuration = 60;
+
 export const config = {
   api: {
     bodyParser: {
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
     let lastError: any;
     for (let attempt = 1; attempt <= 5; attempt++) {
       try {
+        await sleep(attempt * 1000);
         await client.batchUpload({
           blobs: [{ blobData, blobName }],
           signer: account,
@@ -45,7 +48,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true });
       } catch (err: any) {
         lastError = err;
-        if (err.message?.includes("not been registered")) {
+        if (
+          err.message?.includes("not been registered") ||
+          err.message?.includes("mempool") ||
+          err.message?.includes("invalid_transaction")
+        ) {
           await sleep(attempt * 3000);
           continue;
         }

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ShelbyNodeClient } from "@shelby-protocol/sdk/node";
+import { createShelbyIndexerClient } from "@shelby-protocol/sdk/node";
 import { Network } from "@aptos-labs/ts-sdk";
 
 const API_KEY = "aptoslabs_G8yGV938eQu_31wm4T6othxKdmGquFwaDNbagN8XESwdD";
 const ACCOUNT = "0x271096106682d5b04903b9880ac4b213df44d624072986de2f762729364c5cd6";
 
-const client = new ShelbyNodeClient({
+const indexer = createShelbyIndexerClient({
   network: Network.TESTNET,
   apiKey: API_KEY,
-  indexer: { apiKey: API_KEY },
 });
 
 export async function GET(req: NextRequest) {
@@ -16,32 +15,33 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userAddress = searchParams.get("address");
 
-    const where: any = {
-      owner: { _eq: ACCOUNT },
-      blob_name: { _like: "%user-%" },
-      is_deleted: { _eq: "0" },
-    };
-
+    let likePattern = `%user-%`;
     if (userAddress) {
       const shortAddr = userAddress.slice(2, 10).toLowerCase();
-      where.blob_name._like = `%user-${shortAddr}%`;
+      likePattern = `%user-${shortAddr}%`;
     }
 
-    const blobs = await client.coordination.getBlobs({
-      where,
-      limit: 100,
+    const { blobs } = await indexer.GetBlobs({
+      where: {
+        owner: { _eq: ACCOUNT },
+        blob_name: { _like: likePattern },
+        is_deleted: { _eq: "0" },
+      },
+      limit: 200,
+      offset: 0,
     });
 
-    const masterBlobs = blobs.filter(b => b.blobNameSuffix?.endsWith("master.m3u8"));
+    const masterBlobs = blobs.filter((b: any) => b.blob_name?.endsWith("master.m3u8"));
 
-    const videos = masterBlobs.map((blob) => {
-      const prefix = blob.blobNameSuffix!.replace("/master.m3u8", "");
+    const videos = masterBlobs.map((blob: any) => {
+      const fullName = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
+      const prefix = fullName.replace("/master.m3u8", "");
       const playbackUrl = `/shelby/v1/blobs/${ACCOUNT}/${encodeURIComponent(prefix + "/master.m3u8")}`;
-      const createdAt = new Date(Number(blob.creationMicros) / 1000).toISOString();
-      const expiresAt = new Date(Number(blob.expirationMicros) / 1000).toISOString();
+      const createdAt = new Date(Number(blob.created_at) / 1000).toISOString();
+      const expiresAt = new Date(Number(blob.expires_at) / 1000).toISOString();
 
       return {
-        id: blob.name,
+        id: blob.blob_name,
         prefix,
         playbackUrl,
         createdAt,
