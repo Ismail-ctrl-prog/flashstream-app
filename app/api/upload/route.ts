@@ -3,14 +3,7 @@ import { ShelbyNodeClient } from "@shelby-protocol/sdk/node";
 import { Network, Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
 
 export const maxDuration = 60;
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
+export const dynamic = "force-dynamic";
 
 const API_KEY = "aptoslabs_G8yGV938eQu_31wm4T6othxKdmGquFwaDNbagN8XESwdD";
 

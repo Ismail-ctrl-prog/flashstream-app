@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createShelbyIndexerClient } from "@shelby-protocol/sdk/node";
-import { Network } from "@aptos-labs/ts-sdk";
 
 const API_KEY = "aptoslabs_G8yGV938eQu_31wm4T6othxKdmGquFwaDNbagN8XESwdD";
 const ACCOUNT = "0x271096106682d5b04903b9880ac4b213df44d624072986de2f762729364c5cd6";
+const INDEXER_URL = "https://api.testnet.aptoslabs.com/nocode/v1/public/cmlfqs5wt00qrs601zt5s4kfj/v1/graphql";
 
-const indexer = createShelbyIndexerClient({
-  network: Network.TESTNET,
-  apiKey: API_KEY,
+const indexer = createShelbyIndexerClient(INDEXER_URL, {
+  headers: { Authorization: `Bearer ${API_KEY}` },
 });
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,9 +22,8 @@ export async function GET(req: NextRequest) {
       likePattern = `%user-${shortAddr}%`;
     }
 
-    const { blobs } = await indexer.GetBlobs({
+    const result = await indexer.GetBlobs({
       where: {
-        owner: { _eq: ACCOUNT },
         blob_name: { _like: likePattern },
         is_deleted: { _eq: "0" },
       },
@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
       offset: 0,
     });
 
+    const blobs = result.blobs ?? [];
     const masterBlobs = blobs.filter((b: any) => b.blob_name?.endsWith("master.m3u8"));
 
     const videos = masterBlobs.map((blob: any) => {
