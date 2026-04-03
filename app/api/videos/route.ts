@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       likePattern = `%user-${shortAddr}%`;
     }
 
-    const result = await indexer.GetBlobs({
+    const result = await indexer.getBlobs({
       where: {
         blob_name: { _like: likePattern },
         is_deleted: { _eq: "0" },
