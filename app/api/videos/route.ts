@@ -16,10 +16,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userAddress = searchParams.get("address");
 
-    let likePattern = `%user-%`;
+    let likePattern = `%user-%/master.m3u8`;
     if (userAddress) {
       const shortAddr = userAddress.slice(2, 10).toLowerCase();
-      likePattern = `%user-${shortAddr}%`;
+      likePattern = `%user-${shortAddr}-%/master.m3u8`;
     }
 
     const result = await indexer.getBlobs({
@@ -32,11 +32,8 @@ export async function GET(req: NextRequest) {
     });
 
     const blobs = result.blobs ?? [];
-    const masterBlobs = blobs.filter((b: any) =>
-      b.blob_name?.endsWith("master.m3u8") && b.size > 500
-    );
 
-    const videos = masterBlobs.map((blob: any) => {
+    const videos = blobs.map((blob: any) => {
       const fullName = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
       const prefix = fullName.replace("/master.m3u8", "");
       const playbackUrl = `/shelby/v1/blobs/${ACCOUNT}/${encodeURIComponent(prefix + "/master.m3u8")}`;
