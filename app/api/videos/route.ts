@@ -34,11 +34,10 @@ export async function GET(req: NextRequest) {
     const blobs = result.blobs ?? [];
 
     const videos = blobs.map((blob: any) => {
-      // blob_name looks like: @ACCOUNT/user-XXXX-TIMESTAMP/master.m3u8
-      // strip the @ACCOUNT/ prefix to get just: user-XXXX-TIMESTAMP/master.m3u8
-      const suffix = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
-      const prefix = suffix.replace("/master.m3u8", "");
-      // build proxy URL with the prefix encoded correctly
+      // blob_name: @271096.../user-XXXX/master.m3u8
+      // strip @271096.../ to get user-XXXX/master.m3u8
+      const withoutAt = blob.blob_name.replace(`@${ACCOUNT.slice(2)}/`, "");
+      const prefix = withoutAt.replace("/master.m3u8", "");
       const playbackUrl = `/shelby/v1/blobs/${ACCOUNT}/${prefix}%2Fmaster.m3u8`;
       const createdAt = new Date(Number(blob.created_at) / 1000).toISOString();
       const expiresAt = new Date(Number(blob.expires_at) / 1000).toISOString();
