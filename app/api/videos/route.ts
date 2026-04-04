@@ -34,9 +34,12 @@ export async function GET(req: NextRequest) {
     const blobs = result.blobs ?? [];
 
     const videos = blobs.map((blob: any) => {
-      const fullName = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
-      const prefix = fullName.replace("/master.m3u8", "");
-      const playbackUrl = `/shelby/v1/blobs/${ACCOUNT}/${encodeURIComponent(prefix + "/master.m3u8")}`;
+      // blob_name looks like: @ACCOUNT/user-XXXX-TIMESTAMP/master.m3u8
+      // strip the @ACCOUNT/ prefix to get just: user-XXXX-TIMESTAMP/master.m3u8
+      const suffix = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
+      const prefix = suffix.replace("/master.m3u8", "");
+      // build proxy URL with the prefix encoded correctly
+      const playbackUrl = `/shelby/v1/blobs/${ACCOUNT}/${prefix}%2Fmaster.m3u8`;
       const createdAt = new Date(Number(blob.created_at) / 1000).toISOString();
       const expiresAt = new Date(Number(blob.expires_at) / 1000).toISOString();
 
@@ -55,3 +58,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
