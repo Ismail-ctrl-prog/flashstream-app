@@ -32,7 +32,9 @@ export async function GET(req: NextRequest) {
     });
 
     const blobs = result.blobs ?? [];
-    const masterBlobs = blobs.filter((b: any) => b.blob_name?.endsWith("master.m3u8"));
+    const masterBlobs = blobs.filter((b: any) =>
+      b.blob_name?.endsWith("master.m3u8") && b.size > 500
+    );
 
     const videos = masterBlobs.map((blob: any) => {
       const fullName = blob.blob_name.replace(`@${ACCOUNT.slice(1)}/`, "");
