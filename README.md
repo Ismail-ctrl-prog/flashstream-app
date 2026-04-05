@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FlashStream
+
+A decentralized video streaming app built on [Shelby Protocol](https://shelby.xyz). Upload, transcode, and stream video directly from a decentralized network — no servers, no middlemen.
+
+## Live Demo
+
+🔗 [flashstream-app.vercel.app](https://flashstream-app.vercel.app)
+
+## What it does
+
+- 🎬 **Upload** any video from your browser
+- ⚡ **Transcodes** it to HLS adaptive bitrate format entirely in the browser using FFmpeg.wasm
+- 📦 **Stores** it on Shelby's decentralized testnet
+- ▶ **Streams** it back using the Shelby Video Player with adaptive quality switching
+- 🌙 **Dark/light mode**, per-wallet library, shareable links
+
+## Tech Stack
+
+- [`@shelby-protocol/sdk`](https://media-kit.shelby.xyz) — Upload blobs to Shelby testnet
+- [`@shelby-protocol/player`](https://media-kit.shelby.xyz) — Adaptive bitrate HLS video player
+- [`@ffmpeg/ffmpeg`](https://ffmpegwasm.netlify.app) — Browser-based video transcoding
+- [Next.js](https://nextjs.org) — React framework
+- [Aptos Wallet Adapter](https://aptos.dev/build/sdks/wallet-adapter) — Petra wallet integration
+- [Vercel](https://vercel.com) — Hosting
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- [Petra Wallet](https://petra.app) browser extension
+- Testnet APT from [aptos.dev/network/faucet](https://aptos.dev/network/faucet)
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Ismail-ctrl-prog/flashstream-app.git
+cd flashstream-app
+npm install
+cd web && npm install  # if running the web app separately
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+No environment variables needed — API keys are hardcoded for testnet demo purposes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Run locally
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+## How it works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. User connects their Petra wallet
+2. User selects a video file (under 20MB recommended)
+3. FFmpeg.wasm transcodes the video to HLS format with two quality levels (720p and 480p) entirely in the browser
+4. The transcoded segments are uploaded to Shelby testnet via a Next.js API route
+5. The Shelby Video Player streams the video back from the decentralized network using adaptive bitrate
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Limitations
 
-## Deploy on Vercel
+- Browser transcoding is slow for large files — keep videos under 20MB for best results
+- Videos expire after 7 days on testnet
+- Requires Petra wallet and testnet APT to upload
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Built with Shelby Protocol
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This app was built as a demo for [Shelby Protocol](https://shelby.xyz) — a decentralized hot storage protocol co-developed by Aptos Labs and Jump Crypto, designed for real-time streaming and AI workloads.
+
+## License
+
+MIT
